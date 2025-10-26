@@ -136,15 +136,40 @@ You can also query live data from:
 
 See the technical guidelines PDF for API details.
 
-## 📤 Submission
+## 📤 Submission & Expected Output
 
-**Detailed submission requirements are in the technical guidelines PDF.**
+### Required Output Format
 
-General requirements:
-1. Submit your code/solution via the specified method
-2. Ensure your work is well-documented
-3. Follow the deadline specified in the guidelines
-4. Include any visualizations or reports as required
+Your solution must produce a **CSV file with predictions** in the following format:
+
+**Columns:**
+- `datetime_utc` - Timestamp in UTC (e.g., `2024-01-01 00:00:00`)
+- `price_eur_mwh` - Predicted price in EUR/MWh (numeric)
+
+**Example output file:**
+```csv
+datetime_utc,price_eur_mwh
+2024-01-01 00:00:00,45.50
+2024-01-01 00:15:00,43.20
+2024-01-01 00:30:00,41.80
+2024-01-01 00:45:00,40.15
+```
+
+⚠️ **Important**:
+- Use **UTC timezone** for all timestamps
+- Match the time interval specified in the guidelines
+- Ensure no missing values
+- Sort by datetime ascending
+
+### Submission Requirements
+
+**Detailed submission instructions are in the technical guidelines PDF.**
+
+General checklist:
+1. ✅ Output CSV file with correct format
+2. ✅ Source code and solution documentation
+3. ✅ Follow the deadline specified in guidelines
+4. ✅ Include any required visualizations or reports
 
 ## 📞 Support
 
