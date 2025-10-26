@@ -1,0 +1,1 @@
+# NOXxGDGKUL_AIAccelerate2025
