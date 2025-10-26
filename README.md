@@ -173,9 +173,9 @@ General checklist:
 
 ## 📞 Support
 
-**Technical Questions**: [Martin Michaux](https://www.linkedin.com/in/martin-michaux/)
+**Technical & Logistics**: [Martin Michaux](https://www.linkedin.com/in/martin-michaux/)
 
-**Hackathon Logistics**: [Adrien Debray](https://www.linkedin.com/in/adrien-debray-3820281aa/)
+**Technical**: [Adrien Debray](https://www.linkedin.com/in/adrien-debray-3820281aa/)
 
 ## 🔗 Useful Resources
 
