@@ -166,11 +166,10 @@ datetime_utc,price_eur_mwh
 
 **Detailed submission instructions are in the technical guidelines PDF.**
 
-General checklist:
-1. ✅ Output CSV file with correct format
-2. ✅ Source code and solution documentation
-3. ✅ Follow the deadline specified in guidelines
-4. ✅ Include any required visualizations or reports
+General checklist to provide at:
+1. ✅ Follow the deadline specified in guidelines for the submissions of the predictions by email
+2. ✅ At 19:30, provide the source code and solution documentation
+3. ✅ Include any required visualizations or reports
 
 ## 📞 Support
 
