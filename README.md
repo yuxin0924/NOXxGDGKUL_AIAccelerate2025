@@ -154,7 +154,7 @@ Your solution must produce a **CSV file with predictions** in the following form
 What to submit by email at 18:29:
 ```csv
 datetime_utc,price_eur_mwh
-2025-10-29 18:30:00:00,45.50
+2025-10-29 18:30:00,45.50
 ```
 
 ⚠️ **Important**:
