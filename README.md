@@ -141,6 +141,8 @@ See the technical guidelines PDF for API details.
 
 ### Required Output Format
 
+As described in the technical guideline, you will need to send in a total of 4 predictions from 18:29 to 19:29.
+
 Your solution must produce a **CSV file with predictions** in the following format:
 
 **Columns:**
@@ -148,12 +150,11 @@ Your solution must produce a **CSV file with predictions** in the following form
 - `price_eur_mwh` - Predicted price in EUR/MWh (numeric)
 
 **Example output file:**
+
+What to submit by email at 18:29:
 ```csv
 datetime_utc,price_eur_mwh
-2024-01-01 00:00:00,45.50
-2024-01-01 00:15:00,43.20
-2024-01-01 00:30:00,41.80
-2024-01-01 00:45:00,40.15
+2025-10-29 18:30:00:00,45.50
 ```
 
 ⚠️ **Important**:
