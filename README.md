@@ -88,6 +88,7 @@ nox-energy-hackathon/
 ├── README.md                    # This file
 ├── docs/
 │   └── NOX_Energy_tech_guidelines.pdf  # FULL CHALLENGE DETAILS - READ THIS!
+│   └── NOX KULeuven Hackaton Presentation.pdf  # NOX & Case presentation
 └── data/                        # Energy market data
     ├── dam_prices.csv          # Day-Ahead Market prices
     ├── imbalance_forecast.csv  # Imbalance forecasts
@@ -128,7 +129,7 @@ print(f"Min price: {dam['price_eur_mwh'].min():.2f} EUR/MWh")
 print(f"Max price: {dam['price_eur_mwh'].max():.2f} EUR/MWh")
 ```
 
-### API Access (Optional)
+### API Access (Optional but recommended)
 
 You can also query live data from:
 - **ENTSOE Transparency Platform**: [Day-Ahead Market Prices](https://newtransparency.entsoe.eu/)
@@ -183,11 +184,6 @@ General checklist:
 - [ENTSOE Transparency Platform](https://newtransparency.entsoe.eu/)
 - [Elia Open Data Portal](https://opendata.elia.be/)
 - [Open-Meteo Weather API](https://open-meteo.com/en/docs) (for renewable correlation)
-
-### Data Analysis
-- [Pandas Documentation](https://pandas.pydata.org/)
-- [Matplotlib Tutorials](https://matplotlib.org/)
-- [Energy Market Basics](https://transparency.entsoe.eu/)
 
 ---
 
