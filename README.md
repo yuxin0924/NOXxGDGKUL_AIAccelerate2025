@@ -191,6 +191,19 @@ General checklist to provide at:
 
 NOX Energy is pioneering smart energy management solutions, combining AI, IoT, and energy expertise to optimize energy consumption, reduce costs, and accelerate the renewable energy transition.
 
+
+## Google Cloud access for our hackathon
+
+You’ll get free Google Cloud access during the event—no credit card needed.
+
+### How to redeem:
+
+- Make sure you’re signed into a Gmail/Google account.
+
+- Open our event’s unique link: https://trygcp.dev/claim/gdg-other-ai-accelerate-hack
+
+- Follow the prompts to activate your account and access the Google Cloud Console.
+
 **Good luck!** ⚡
 
 ---
