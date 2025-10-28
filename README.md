@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="NOX_logo.png" alt="NOX Energy Logo" height="200">
+  <img src="docs/NOX_logo.png" alt="NOX Energy Logo" height="200">
 </p>
 
 # NOX Energy Hackathon ⚡
