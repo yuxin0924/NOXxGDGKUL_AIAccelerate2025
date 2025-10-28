@@ -21,7 +21,7 @@ You have access to three datasets containing Belgian energy market information:
 
 Contains electricity prices traded one day in advance:
 - **Frequency**: 15-minute intervals
-- **Period**: 2024
+- **Period**: 2024-2025
 - **Unit**: EUR/MWh
 - **Columns**: `datetime_utc`, `date`, `hour`, `minute`, `price_eur_mwh`
 
@@ -30,7 +30,7 @@ Contains electricity prices traded one day in advance:
 
 Forecasted prices for grid balancing:
 - **Frequency**: 1-minute intervals
-- **Period**: 2025
+- **Period**: May 2024 - 2025
 - **Unit**: EUR/MWh
 - **Columns**: `datetime_utc`, `date`, `hour`, `minute`, `second`, `price_eur_mwh`
 
@@ -39,7 +39,7 @@ Forecasted prices for grid balancing:
 
 Real imbalance prices from the grid:
 - **Frequency**: 15-minute intervals
-- **Period**: 2024
+- **Period**: July 2024 to 2025
 - **Unit**: EUR/MWh
 - **Columns**: `datetime_utc`, `date`, `hour`, `minute`, `price_eur_mwh`
 
