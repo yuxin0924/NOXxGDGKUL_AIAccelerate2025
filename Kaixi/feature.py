@@ -195,16 +195,11 @@ def create_features_and_target(df_forecast, df_actual, df_dam, is_training=True)
     pd.set_option('display.max_rows', None)     # show all rows
 
     print("\nAll columns:")
-    out_path = 'data/processed_features.csv'
-    df.to_csv(out_path, index=True)
-    print(f"Saved processed dataframe to {out_path}")
-
+    # Return the processed dataframe directly without saving to CSV
     return df
 
-def train_and_save_model(df, model_path='models/lgb_model.txt'):
-    """训练 LightGBM 模型并保存到本地。"""
-    # 创建模型保存目录
-    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+def train_model(df):
+    """训练 LightGBM 模型并返回模型对象。"""
     
     # 定义目标和特征
     target_col = 'target_actual_price'
@@ -254,15 +249,8 @@ def train_and_save_model(df, model_path='models/lgb_model.txt'):
     mae = mean_absolute_error(y_test, y_pred)
     print(f"\n测试集 MAE: {mae:.4f}")
     
-    # 保存模型和特征列表
-    model.booster_.save_model(model_path)
-    feature_path = os.path.join(os.path.dirname(model_path), 'feature_list.txt')
-    with open(feature_path, 'w') as f:
-        f.write('\n'.join(features))
-    
-    print(f"\n模型已保存到: {model_path}")
-    print(f"特征列表已保存到: {feature_path}")
-    
+    # Return model and features directly without saving
+    print("\n模型训练完成")
     return model, features
 
     # 定义目标和特征
@@ -364,20 +352,20 @@ def send_prediction_email(current_price, predicted_price, recipient_email="kaixi
 """
         msg.attach(MIMEText(body, 'plain'))
         
-        # 保存预测到CSV并附加到邮件
+        # Create prediction DataFrame and convert directly to CSV string
         df_prediction = pd.DataFrame({
             'timestamp': [current_time, next_quarter],
             'price_type': ['当前价格', '预测价格'],
             'price_eur_mwh': [current_price, predicted_price]
         })
         
-        csv_buffer = 'prediction_data.csv'
-        df_prediction.to_csv(csv_buffer, index=False, encoding='utf-8')
+        # Convert DataFrame to CSV string in memory
+        csv_string = df_prediction.to_csv(index=False, encoding='utf-8')
         
-        with open(csv_buffer, 'rb') as f:
-            part = MIMEApplication(f.read(), _subtype="csv")
-            part.add_header('Content-Disposition', 'attachment', filename="price_prediction.csv")
-            msg.attach(part)
+        # Attach CSV string directly to email
+        part = MIMEApplication(csv_string.encode('utf-8'), _subtype="csv")
+        part.add_header('Content-Disposition', 'attachment', filename="price_prediction.csv")
+        msg.attach(part)
 
         # 连接到SMTP服务器并发送邮件
         server = smtplib.SMTP(smtp_server, smtp_port)
@@ -387,10 +375,10 @@ def send_prediction_email(current_price, predicted_price, recipient_email="kaixi
         server.quit()
         print(f"✓ 预测报告已发送至 {recipient_email}")
         
-        # 同时保存到日志文件
-        log_file = 'predictions_log.txt'
-        with open(log_file, 'a') as f:
-            f.write(body + "\n" + "="*50 + "\n")
+        # Log prediction to console instead of file
+        print("预测日志:")
+        print(body)
+        print("="*50)
         
     except Exception as e:
         print(f"发送邮件失败: {str(e)}")
@@ -399,19 +387,10 @@ def send_prediction_email(current_price, predicted_price, recipient_email="kaixi
         elif isinstance(e, smtplib.SMTPServerDisconnected):
             print("服务器连接断开。请检查网络连接。")
 
-def load_model_and_predict(df_forecast, df_actual, df_dam, model_path='models/lgb_model.txt'):
-    """加载保存的模型并对实时数据进行预测"""
-    # 检查模型文件
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"找不到模型文件: {model_path}")
-    
-    # 加载特征列表
-    feature_path = os.path.join(os.path.dirname(model_path), 'feature_list.txt')
-    with open(feature_path, 'r') as f:
-        features = f.read().splitlines()
-    
-    # 加载模型
-    model = lgb.Booster(model_file=model_path)
+def predict_with_model(df_forecast, df_actual, df_dam, model, features):
+    """使用提供的模型对实时数据进行预测"""
+    if model is None or features is None:
+        raise ValueError("未提供模型或特征列表")
     
     # 处理实时数据
     df = create_features_and_target(df_forecast, df_actual, df_dam, is_training=False)
@@ -479,30 +458,26 @@ if __name__ == "__main__":
     print(f"当前时间 (UTC): {current_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print("=========================================\n")
     
-    model_path = 'models/lgb_model.txt'
-    
     try:
-        # 检查是否需要训练新模型
-        if not os.path.exists(model_path):
-            print("未找到已训练的模型，开始训练新模型...")
-            print("\n1. 加载训练数据...")
-            df_forecast, df_actual, df_dam = load_training_data()
-            df_processed = create_features_and_target(df_forecast, df_actual, df_dam)
-            
-            if not df_processed.empty:
-                print("\n2. 训练并保存模型...")
-                model, features = train_and_save_model(df_processed, model_path)
-                print("✓ 模型训练完成并保存")
-            else:
-                raise ValueError("处理后的训练数据为空")
+        # 加载训练数据并训练新模型
+        print("\n1. 加载训练数据...")
+        df_forecast, df_actual, df_dam = load_training_data()
+        df_processed = create_features_and_target(df_forecast, df_actual, df_dam)
+        
+        if not df_processed.empty:
+            print("\n2. 训练模型...")
+            model, features = train_model(df_processed)
+            print("✓ 模型训练完成")
+        else:
+            raise ValueError("处理后的训练数据为空")
         
         # 获取实时预测
         print("\n获取实时预测...")
         print("1. 加载实时数据...")
         rt_forecast, rt_actual, rt_dam = load_realtime_data()
         
-        print("\n2. 加载模型并预测...")
-        result = load_model_and_predict(rt_forecast, rt_actual, rt_dam, model_path)
+        print("\n2. 使用模型预测...")
+        result = predict_with_model(rt_forecast, rt_actual, rt_dam, model, features)
         
         print("\n=== 预测结果 ===")
         print(f"预测时间: {result['prediction_time'].strftime('%Y-%m-%d %H:%M:%S')} UTC")
