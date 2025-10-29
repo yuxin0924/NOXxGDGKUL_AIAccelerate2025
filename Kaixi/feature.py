@@ -110,8 +110,29 @@ def create_features_and_target(df_forecast, df_actual, df_dam):
 
     print(f"特征工程完成。最终数据集形态: {df.shape}")
 
-    return df
+    # 快速展示处理后数据以便检视
+    print("\n== 处理后数据快照 ==")
+    print(f"形状: {df.shape}")
+    print("\n前 10 行:")
+    print(df.head(10))
+    print("\n后 5 行:")
+    print(df.tail(5))
 
+    print("\n列与类型:")
+    print(df.dtypes)
+    print("\n每列缺失值数量:")
+    print(df.isna().sum())
+
+    print("\n数值列描述性统计:")
+    pd.set_option('display.max_columns', None)  # ensure pandas prints all columns
+    pd.set_option('display.max_rows', None)     # show all rows
+
+    print("\nAll columns:")
+    out_path = 'data/processed_features.csv'
+    df.to_csv(out_path, index=True)
+    print(f"Saved processed dataframe to {out_path}")
+
+    return df
 
 def train_model(df):
     """训练 LightGBM 模型并评估。"""
