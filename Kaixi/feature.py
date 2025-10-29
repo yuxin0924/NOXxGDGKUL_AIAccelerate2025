@@ -7,38 +7,57 @@ import warnings
 
 # 忽略一些常见的 pandas 警告
 warnings.filterwarnings('ignore', category=pd.errors.SettingWithCopyWarning)
+import requests, pandas as pd
 
+r = requests.get(
+    "https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods161/records",
+    params={"limit": 10, "order_by": "datetime DESC"},
+    timeout=10
+)
+df_forecast = pd.DataFrame(r.json()["results"])[["datetime", "imbalanceprice"]]
+df_forecast.columns = ["datetime_utc", "price_eur_mwh"]
+
+df_forecast["datetime_utc"] = pd.to_datetime(df_forecast["datetime_utc"], utc=True)
+df_forecast["date"]   = df_forecast["datetime_utc"].dt.date
+df_forecast["hour"]   = df_forecast["datetime_utc"].dt.hour
+df_forecast["minute"] = df_forecast["datetime_utc"].dt.minute
+df_forecast["second"] = df_forecast["datetime_utc"].dt.second
+
+df_forecast = df_forecast[["datetime_utc","date","hour","minute","second","price_eur_mwh"]]
 
 def load_data():
     """加载所有三个 CSV 文件并设置时间索引。"""
     print("开始加载数据...")
 
     # 1. 1分钟间隔的预测不平衡价格（我们的主要特征来源）
-    df_forecast = pd.read_csv(
-        "data/imbalance_forecast.csv",
-        parse_dates=['datetime_utc'],
-        index_col='datetime_utc'
-    )
+    df_forecast = pd.read_csv("data/imbalance_forecast.csv")
+    if 'datetime_utc' not in df_forecast.columns:
+        raise KeyError("缺少 datetime_utc 列")
+    df_forecast['datetime_utc'] = pd.to_datetime(df_forecast['datetime_utc'], errors='coerce', utc=True)
+    df_forecast = df_forecast.dropna(subset=['datetime_utc'])
+    df_forecast = df_forecast.set_index('datetime_utc').sort_index()
     # 重命名价格列以便区分
     df_forecast = df_forecast.rename(columns={'price_eur_mwh': 'forecast_price'})
     print(f"  - 预测数据 (forecast) 加载完毕，形态: {df_forecast.shape}")
 
     # 2. 15分钟间隔的实际不平衡价格（我们的目标变量来源）
-    df_actual = pd.read_csv(
-        "data/imbalance_actual.csv",
-        parse_dates=['datetime_utc'],
-        index_col='datetime_utc'
-    )
+    df_actual = pd.read_csv("data/imbalance_actual.csv")
+    if 'datetime_utc' not in df_actual.columns:
+        raise KeyError("缺少 datetime_utc 列")
+    df_actual['datetime_utc'] = pd.to_datetime(df_actual['datetime_utc'], errors='coerce', utc=True)
+    df_actual = df_actual.dropna(subset=['datetime_utc'])
+    df_actual = df_actual.set_index('datetime_utc').sort_index()
     # 重命名价格列以便区分
     df_actual = df_actual.rename(columns={'price_eur_mwh': 'target_actual_price'})
     print(f"  - 实际数据 (actual) 加载完毕，形态: {df_actual.shape}")
 
     # 3. 15分钟间隔的日前市场价格（一个重要特征）
-    df_dam = pd.read_csv(
-        'data/dam_prices.csv',
-        parse_dates=['datetime_utc'],
-        index_col='datetime_utc'
-    )
+    df_dam = pd.read_csv('data/dam_prices.csv')
+    if 'datetime_utc' not in df_dam.columns:
+        raise KeyError("缺少 datetime_utc 列")
+    df_dam['datetime_utc'] = pd.to_datetime(df_dam['datetime_utc'], errors='coerce', utc=True)
+    df_dam = df_dam.dropna(subset=['datetime_utc'])
+    df_dam = df_dam.set_index('datetime_utc').sort_index()
     df_dam = df_dam.rename(columns={'price_eur_mwh': 'dam_price'})
     print(f"  - 日前价格 (DAM) 加载完毕，形态: {df_dam.shape}")
 
