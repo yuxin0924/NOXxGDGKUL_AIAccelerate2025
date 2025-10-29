@@ -4,7 +4,7 @@
 
 
 ## Overview
-his hackathon challenges you to work with real Belgian energy market data to build solutions that demonstrate your understanding of energy systems, data analysis, and innovative thinking.
+This hackathon challenges you to work with real Belgian energy market data to build solutions that demonstrate your understanding of energy systems, data analysis, and innovative thinking.
 
 Our Core Strategy: Develop a prediction pipeline using RandomForest and LightGBM models, integrating the Day-Ahead Market (DAM) and high-resolution Imbalance Forecast data.
 
