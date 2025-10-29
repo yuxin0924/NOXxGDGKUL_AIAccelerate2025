@@ -1,2 +1,0 @@
-datetime_utc,forecast_price,target_timestamp,target_actual_price,dam_price,hour,minute,dayofweek,month,quarter,is_weekend,forecast_price_lag_1min,forecast_price_lag_15min,forecast_rolling_mean_5min,forecast_rolling_std_15min,forecast_vs_dam
-2025-10-29 16:41:00+00:00,116.55,2025-10-29 16:45:00+00:00,,130.87,16,41,2,10,4,0,116.55,118.33,114.995,12.905618039480016,-14.320000000000007
