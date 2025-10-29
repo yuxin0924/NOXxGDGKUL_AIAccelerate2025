@@ -4,7 +4,6 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import warnings
-from pathlib import Path
 
 # 忽略一些常见的 pandas 警告
 warnings.filterwarnings('ignore', category=pd.errors.SettingWithCopyWarning)
@@ -31,12 +30,12 @@ def load_data():
         index_col='datetime_utc'
     )
     # 重命名价格列以便区分
-    df_actual = df_actual.rename(columns={'price_eur_mwh': 'actual_price'})
+    df_actual = df_actual.rename(columns={'price_eur_mwh': 'target_actual_price'})
     print(f"  - 实际数据 (actual) 加载完毕，形态: {df_actual.shape}")
 
     # 3. 15分钟间隔的日前市场价格（一个重要特征）
     df_dam = pd.read_csv(
-        'dam_prices.csv',
+        'data/dam_prices.csv',
         parse_dates=['datetime_utc'],
         index_col='datetime_utc'
     )
@@ -114,3 +113,113 @@ def create_features_and_target(df_forecast, df_actual, df_dam):
     return df
 
 
+def train_model(df):
+    """训练 LightGBM 模型并评估。"""
+
+    # 定义目标和特征
+    target_col = 'target_actual_price'
+
+    # 从 'date' 和 'second' 列中移除，因为它们可能不是有用的特征
+    # 'target_timestamp' 只是一个辅助列，也移除
+    cols_to_drop = [
+        'date', 'second', 'target_timestamp', target_col,
+        'hour', 'minute'  # 已经用作分类特征了
+    ]
+
+    # 在 df.columns 中存在的列才会被移除
+    features = [col for col in df.columns if col not in cols_to_drop]
+
+    # 定义分类特征，LGBM 可以更好地处理它们
+    categorical_features = ['dayofweek', 'month', 'quarter', 'is_weekend']
+
+    # 确保所有特征列都是LGBM支持的类型（例如，datetime索引需要移除）
+    # 在这里，我们的特征都应该是数值型或已定义的分类
+
+    X = df[features]
+    y = df[target_col]
+
+    # 重要的：按时间拆分数据，不能随机打乱！
+    # 我们使用 70% 训练, 15% 验证, 15% 测试
+
+    train_size = int(len(X) * 0.7)
+    val_size = int(len(X) * 0.85)
+
+    X_train, y_train = X.iloc[:train_size], y.iloc[:train_size]
+    X_val, y_val = X.iloc[train_size:val_size], y.iloc[train_size:val_size]
+    X_test, y_test = X.iloc[val_size:], y.iloc[val_size:]
+
+    print(f"数据拆分完毕:")
+    print(f"  - 训练集: {X_train.shape}")
+    print(f"  - 验证集: {X_val.shape}")
+    print(f"  - 测试集: {X_test.shape}")
+
+    # 初始化 LightGBM 模型
+    # 目标是最小化 MAE (Mean Absolute Error)
+    lgb_model = lgb.LGBMRegressor(
+        objective='mae',
+        metric='mae',
+        n_estimators=1000,
+        learning_rate=0.05,
+        n_jobs=-1,
+        random_state=42,
+        subsample=0.8,
+        colsample_bytree=0.8
+    )
+
+    print("\n开始训练模型...")
+
+    # 训练模型，并使用验证集进行早期停止
+    # 这可以防止模型过拟合，并在验证集MAE不再改善时停止训练
+    lgb_model.fit(
+        X_train, y_train,
+        eval_set=[(X_val, y_val)],
+        eval_metric='mae',
+        callbacks=[lgb.early_stopping(100, verbose=True)],
+        categorical_feature=categorical_features
+    )
+
+    print("模型训练完毕。")
+
+    return lgb_model, X_test, y_test, features
+
+
+def evaluate_and_predict(model, X_test, y_test, feature_names):
+    """在测试集上进行预测并评估模型。"""
+
+    print("\n在测试集上进行预测...")
+    y_pred = model.predict(X_test)
+
+    # 计算 MAE
+    mae = mean_absolute_error(y_test, y_pred)
+    print(f"\n======================================")
+    print(f"模型在测试集上的 MAE: {mae:.4f}")
+    print(f"======================================")
+
+    # 显示特征重要性
+    print("\n显示特征重要性...")
+    lgb.plot_importance(model, max_num_features=20, figsize=(10, 8), importance_type='gain')
+    plt.title("LightGBM importance of feature (based on gain)")
+    plt.tight_layout()
+    plt.show()
+
+    # (可选) 绘制预测值 vs 实际值
+    plt.figure(figsize=(15, 6))
+    plt.plot(y_test.index, y_test, label='Actual Price', alpha=0.7)
+    plt.plot(y_test.index, y_pred, label='Predicted Price', linestyle='--', alpha=0.7)
+    plt.legend()
+    plt.title(f"Real values from test set vs prediction values (MAE: {mae:.4f})")
+    plt.xlabel("time")
+    plt.ylabel("price (EUR/MWh)")
+    plt.show()
+
+
+if __name__ == "__main__":
+    # 运行整个流程
+    df_forecast, df_actual, df_dam = load_data()
+    df_processed = create_features_and_target(df_forecast, df_actual, df_dam)
+
+    if not df_processed.empty:
+        model, X_test, y_test, features = train_model(df_processed)
+        evaluate_and_predict(model, X_test, y_test, features)
+    else:
+        print("处理后数据为空，请检查数据源和时间范围。")
