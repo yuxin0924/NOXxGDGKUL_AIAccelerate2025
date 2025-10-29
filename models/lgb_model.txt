@@ -3242,7 +3242,7 @@ parameters:
 [num_iterations: 1000]
 [learning_rate: 0.05]
 [num_leaves: 31]
-[num_threads: 16]
+[num_threads: 18]
 [seed: 42]
 [deterministic: 0]
 [force_col_wise: 0]
