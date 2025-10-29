@@ -1,0 +1,30 @@
+开始加载数据...
+  - 预测数据 (forecast) 加载完毕，形态: (105949, 5)
+  - 实际数据 (actual) 加载完毕，形态: (49559, 4)
+  - 日前价格 (DAM) 加载完毕，形态: (63338, 4)
+开始进行特征工程和目标对齐...
+特征工程完成。最终数据集形态: (105422, 17)
+数据拆分完毕:
+  - 训练集: (73795, 11)
+  - 验证集: (15813, 11)
+  - 测试集: (15814, 11)
+
+开始训练模型...
+开始训练模型...
+[LightGBM] [Info] Auto-choosing col-wise multi-threading, the overhead of testing was 0.002055 seconds.
+You can set `force_col_wise=true` to remove the overhead.
+[LightGBM] [Info] Total Bins 1800
+[LightGBM] [Info] Number of data points in the train set: 73795, number of used features: 10
+[LightGBM] [Info] Start training from score 71.739998
+Training until validation scores don't improve for 100 rounds
+Early stopping, best iteration is:
+[153]   valid_0's l1: 26.0876
+模型训练完毕。
+
+在测试集上进行预测...
+
+======================================
+模型在测试集上的 MAE: 27.9040
+======================================
+
+显示特征重要性...
