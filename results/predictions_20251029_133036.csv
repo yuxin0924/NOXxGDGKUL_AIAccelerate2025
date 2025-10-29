@@ -1,0 +1,3 @@
+datetime_utc,price_eur_mwh,type
+2025-10-29 13:30:00,76.0,current_forecast
+2025-10-29 13:45:00,81.1775,prediction
